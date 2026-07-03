@@ -10,7 +10,7 @@
 
 [Module Manifest](https://github.com/jwylie01/maestro/releases/latest/download/module.json)
 
-[Changelog](https://github.com/death-save/maestro/blob/master/CHANGELOG.md)
+[Changelog](https://github.com/jwylie01/maestro/blob/master/CHANGELOG.md)
 
 
 Adds some sound-focused features to Foundry Virtual Tabletop!
