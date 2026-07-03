@@ -46,7 +46,7 @@ Set a playlist or track to play when the Combat encounter begins.
 ## Installation
 
 1. Navigate to the Foundry Setup screen and click on the Modules tab
-2. Click Install Module and search for `maestro` or paste in the following link: https://github.com/death-save/maestro/releases/latest/download/module.json
+2. Click Install Module and paste in the following link: [https://github.com/jwylie01/maestro/releases/latest/download/module.json]
 3. Once the **Maestro** is installed, open your desired world and navigate to the `Game Settings` > `Configure Settings` > `Module Settings` and enable the settings you want!
 
 ## Issues/Feedback
