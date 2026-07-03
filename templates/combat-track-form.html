@@ -8,33 +8,23 @@
         <div class="tab defaults flexcol" data-group="primary" data-tab="defaults">
         <div class="form-group">
             <label>{{localize "MAESTRO.COMBAT-TRACK.FormDefaultPlaylistLabel"}}</label>
-            <select name="default-playlist" class="default-playlist-select" title="{{localize "MAESTRO.COMBAT-TRACK.FormDefaultPlaylistTooltip"}}" default="">
-                {{#select defaultPlaylist}}
-                    <option value="">{{localize "MAESTRO.COMBAT-TRACK.FormSelectNone"}}</option>
-                    {{#each playlists}}
-                    <option value="{{this.id}}">{{this.name}}</option>
-                    {{/each}}
-                {{/select}}
+            <select name="default-playlist" class="default-playlist-select" title="{{localize "MAESTRO.COMBAT-TRACK.FormDefaultPlaylistTooltip"}}">
+                {{#each defaultPlaylistOptions}}
+                <option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
+                {{/each}}
             </select>
-            <p class="notes">{{localize "MAESTRO.COMBAT-TRACK.FormDefaultPlaylistNotes"}}</p> 
+            <p class="notes">{{localize "MAESTRO.COMBAT-TRACK.FormDefaultPlaylistNotes"}}</p>
         </div>
-    
+
 
         <div class="form-group">
             <label>{{localize "MAESTRO.COMBAT-TRACK.FormDefaultTrackLabel"}}</label>
-            <select name="default-track" class="default-track-select" title="{{localize "MAESTRO.COMBAT-TRACK.FormDefaultTrackTooltip"}}" default="">
-                {{#select defaultTrack}}
-                    <option value="">{{localize "MAESTRO.COMBAT-TRACK.FormSelectNone"}}</option>
-                    {{#if defaultPlaylistTracks}}
-                    <option value="random-track">{{localize "MAESTRO.COMBAT-TRACK.FormPlayRandom"}}</option>
-                    <option value="play-all">{{localize "MAESTRO.COMBAT-TRACK.FormPlayAll"}}</option>
-                    {{/if}}
-                    {{#each defaultPlaylistTracks}}
-                    <option value="{{this.id}}">{{this.name}}</option>
-                    {{/each}}
-                {{/select}}
+            <select name="default-track" class="default-track-select" title="{{localize "MAESTRO.COMBAT-TRACK.FormDefaultTrackTooltip"}}">
+                {{#each defaultTrackOptions}}
+                <option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
+                {{/each}}
             </select>
-            <p class="notes">{{localize "MAESTRO.COMBAT-TRACK.FormDefaultTrackNotes"}}</p> 
+            <p class="notes">{{localize "MAESTRO.COMBAT-TRACK.FormDefaultTrackNotes"}}</p>
         </div>
     </div>
 
@@ -42,44 +32,32 @@
     <div class="tab encounter flexcol" data-group="primary" data-tab="encounter">
         <div class="form-group">
             <label>{{localize "MAESTRO.COMBAT-TRACK.FormPlaylistLabel"}}</label>
-            <select name="playlist" class="playlist-select" title="{{localize "MAESTRO.COMBAT-TRACK.FormPlaylistTooltip"}}" default="default">
-                {{#select playlist}}
-                    <option value="default">{{localize "MAESTRO.COMBAT-TRACK.FormSelectUseDefault"}}</option>
-                    <option value="">{{localize "MAESTRO.COMBAT-TRACK.FormSelectNone"}}</option>
-                    {{#each playlists}}
-                    <option value="{{this.id}}">{{this.name}}</option>
-                    {{/each}}
-                {{/select}}
+            <select name="playlist" class="playlist-select" title="{{localize "MAESTRO.COMBAT-TRACK.FormPlaylistTooltip"}}">
+                {{#each playlistOptions}}
+                <option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
+                {{/each}}
             </select>
-            <p class="notes">{{localize "MAESTRO.COMBAT-TRACK.FormPlaylistNotes"}}</p> 
+            <p class="notes">{{localize "MAESTRO.COMBAT-TRACK.FormPlaylistNotes"}}</p>
         </div>
 
         <div class="form-group">
             <label>{{localize "MAESTRO.COMBAT-TRACK.FormTrackLabel"}}</label>
-            <select name="track" class="track-select" title="{{localize "MAESTRO.COMBAT-TRACK.FormTrackTooltip"}}" default="default">
-                {{#select track}}
-                    <option value="default">{{localize "MAESTRO.COMBAT-TRACK.FormSelectUseDefault"}}</option>
-                    <option value="">{{localize "MAESTRO.COMBAT-TRACK.FormSelectNone"}}</option>
-                    {{#if playlistTracks}}
-                    <option value="random-track">{{localize "MAESTRO.COMBAT-TRACK.FormPlayRandom"}}</option>
-                    <option value="play-all">{{localize "MAESTRO.COMBAT-TRACK.FormPlayAll"}}</option>
-                    {{/if}}
-                    {{#each playlistTracks}}
-                    <option value="{{this.id}}">{{this.name}}</option>
-                    {{/each}}
-                {{/select}}
+            <select name="track" class="track-select" title="{{localize "MAESTRO.COMBAT-TRACK.FormTrackTooltip"}}">
+                {{#each trackOptions}}
+                <option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
+                {{/each}}
             </select>
-            <p class="notes">{{localize "MAESTRO.COMBAT-TRACK.FormTrackNotes"}}</p> 
+            <p class="notes">{{localize "MAESTRO.COMBAT-TRACK.FormTrackNotes"}}</p>
         </div>
     </div>
     {{/if}}
     </section>
-    
+
 
     <span>
         <button type="submit" name="submit">
             <i class="far fa-save"></i> Save
         </button>
     </span>
-    
+
 </form>

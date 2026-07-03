@@ -1,5 +1,5 @@
 import * as MAESTRO from "./config.js";
-import { isFirstGM } from "./misc.js";
+import { addSheetHeaderButton, buildSelectOptions, countEntries, isFirstGM } from "./misc.js";
 import * as Playback from "./playback.js";
 
 export default class HypeTrack {
@@ -61,10 +61,10 @@ export default class HypeTrack {
      * @param {*} update - the update data
      */
     async _processHype(combat, update) {
-        if (combat?.current?.round == 0 
+        if (combat?.current?.round == 0
             || !Number.isNumeric(update.turn)
-            || !combat.combatants?.contents?.length 
-            || !this.playlist 
+            || !combat.combatants?.contents?.length
+            || !this.playlist
             || !isFirstGM()) {
             return;
         }
@@ -73,7 +73,7 @@ export default class HypeTrack {
         if (this.playlist?.playing) await this.playlist.stopAll();
 
         // Find the hype track
-        const flags = this._getActorHypeFlags(combat?.combatant?.actor);        
+        const flags = this._getActorHypeFlags(combat?.combatant?.actor);
         const track = flags?.track || "";
         const playlist = flags?.playlist || this.playlist?.id;
 
@@ -82,7 +82,7 @@ export default class HypeTrack {
                 // Resume any previously paused sounds
                 this._resumeOthers();
             }
-            
+
             return;
         }
 
@@ -99,15 +99,15 @@ export default class HypeTrack {
             case MAESTRO.DEFAULT_CONFIG.ItemTrack.playbackModes.all:
                 await Playback.playPlaylist(playlist);
                 break;
-            
+
             case MAESTRO.DEFAULT_CONFIG.ItemTrack.playbackModes.random:
                 await Playback.playTrack(track, playlist);
                 break;
-        
+
             default:
                 if (!track) return;
 
-                await Playback.playTrack(track, playlist);            
+                await Playback.playTrack(track, playlist);
         }
 
         // Resume other sounds on end
@@ -117,7 +117,7 @@ export default class HypeTrack {
             const hypePlaylist = game.playlists.get(playlist);
             const hypeTrackSound = hypePlaylist?.sounds?.get(track);
 
-            hypeTrackSound?.sound?.on("end", () => {
+            hypeTrackSound?.sound?.addEventListener("end", () => {
                 this._resumeOthers();
             }, {once: true});
         }
@@ -130,20 +130,20 @@ export default class HypeTrack {
         Playback.resumeSounds(this.pausedSounds);
         this.pausedSounds = [];
     }
-    
+
 
     /**
      * Get the Hype Track flag if it exists on an actor
      * @param {*} actor
-     * 
+     *
      */
     _getActorHypeTrack(actor) {
-        return getProperty(actor, `flags.${MAESTRO.MODULE_NAME}.${MAESTRO.DEFAULT_CONFIG.HypeTrack.flagNames.track}`);
+        return foundry.utils.getProperty(actor, `flags.${MAESTRO.MODULE_NAME}.${MAESTRO.DEFAULT_CONFIG.HypeTrack.flagNames.track}`);
     }
-    
+
     /**
      * Sets the Hype Track
-     * @param {Number} trackId - Id of the track in the playlist 
+     * @param {Number} trackId - Id of the track in the playlist
      */
     async _setActorHypeTrack(actor, trackId) {
         return await actor.update({[`flags.${MAESTRO.MODULE_NAME}.${MAESTRO.DEFAULT_CONFIG.HypeTrack.flagNames.track}`]: trackId});
@@ -151,7 +151,7 @@ export default class HypeTrack {
 
     /**
      * Gets the Hype Flags
-     * @param {Actor} actor 
+     * @param {Actor} actor
      * @returns {Object} the Hype flags object
      */
     _getActorHypeFlags(actor) {
@@ -160,7 +160,7 @@ export default class HypeTrack {
 
     /**
      * Sets the Hype Flags
-     * @param {String} trackId - Id of the track in the playlist 
+     * @param {String} trackId - Id of the track in the playlist
      */
      async _setActorHypeFlags(actor, playlistId, trackId) {
         return await actor.update({
@@ -168,12 +168,12 @@ export default class HypeTrack {
             [`flags.${MAESTRO.MODULE_NAME}.${MAESTRO.DEFAULT_CONFIG.HypeTrack.flagNames.track}`]: trackId
         });
     }
-    
+
     /**
      * Adds a button to the Actor sheet to open the Hype Track form
-     * @param {Object} app 
-     * @param {Object} html 
-     * @param {Object} data 
+     * @param {Object} app
+     * @param {HTMLElement|jQuery} html
+     * @param {Object} data
      */
     async _addHypeButton (app, html, data) {
         if(!game.user.isGM && !app?.document?.isOwner) {
@@ -186,45 +186,22 @@ export default class HypeTrack {
             return;
         }
 
-        /**
-         * Hype Button html literal
-         * @todo replace with a template instead
-         */
-        const hypeButton = $(
-            `<a class="${MAESTRO.DEFAULT_CONFIG.HypeTrack.name}" title="${MAESTRO.DEFAULT_CONFIG.HypeTrack.aTitle}">
-                <i class="${MAESTRO.DEFAULT_CONFIG.HypeTrack.buttonIcon}"></i>
-                <span> ${MAESTRO.DEFAULT_CONFIG.HypeTrack.buttonText}</span>
-            </a>`
-        );
-        
-        if (html.find(`.${MAESTRO.DEFAULT_CONFIG.HypeTrack.name}`).length > 0) {
-            return;
-        }
-
-        /**
-         * Finds the header and the close button
-         */
-        const windowHeader = html.find(".window-header");
-        const windowCloseBtn = windowHeader.find(".close");
-    
-        /**
-         * Create an instance of the hypeButton before the close button
-         */
-        windowCloseBtn.before(hypeButton);
-    
-        /**
-         * Register a click listener that opens the Hype Track form
-         */
-        hypeButton.on("click", (event) => {
-            const flags = this._getActorHypeFlags(app.document);
-            this._openTrackForm(app.document, flags, {closeOnSubmit: true});
+        addSheetHeaderButton(app, html, {
+            buttonClass: MAESTRO.DEFAULT_CONFIG.HypeTrack.name,
+            icon: MAESTRO.DEFAULT_CONFIG.HypeTrack.buttonIcon,
+            label: MAESTRO.DEFAULT_CONFIG.HypeTrack.buttonText,
+            tooltip: MAESTRO.DEFAULT_CONFIG.HypeTrack.aTitle,
+            onClick: () => {
+                const flags = this._getActorHypeFlags(app.document);
+                this._openTrackForm(app.document, flags, {closeOnSubmit: true});
+            }
         });
     }
-    
+
     /**
      * Opens the Hype Track form
      * @param {Object} actor  the actor object
-     * @param {Object} track  any existing track for this actor
+     * @param {Object} flags  any existing maestro flags for this actor
      * @param {Object} options  form options
      */
     _openTrackForm(actor, flags, options) {
@@ -237,7 +214,7 @@ export default class HypeTrack {
 
     /**
      * Plays a hype track for the provided actor
-     * @param {*} actor 
+     * @param {*} actor
      */
     async playHype(actor, {warn=true, pauseOthers=false}={}) {
         if (typeof(actor) === "string") {
@@ -262,6 +239,7 @@ export default class HypeTrack {
 
         if (!playlist) {
             if (warn) ui.notifications.warn(game.i18n.localize("MAESTRO.HYPE-TRACK.PlayHype.NoPlaylist"));
+            return;
         }
 
         const playedTrack = await Playback.playTrack(hypeTrack, playlist.id);
@@ -296,18 +274,18 @@ export default class HypeTrack {
 /**
  * A FormApplication for setting the Actor's Hype Track
  */
-class HypeTrackActorForm extends FormApplication {
+class HypeTrackActorForm extends foundry.appv1.api.FormApplication {
     constructor(actor, data, options){
         super(data, options);
         this.actor = actor;
         this.data = data;
     }
-    
+
     /**
      * Default Options for this FormApplication
      */
     static get defaultOptions() {
-        return mergeObject(super.defaultOptions, {
+        return foundry.utils.mergeObject(super.defaultOptions, {
             id: "hype-track-form",
             title: MAESTRO.DEFAULT_CONFIG.HypeTrack.aTitle,
             template: MAESTRO.DEFAULT_CONFIG.HypeTrack.templatePath,
@@ -320,11 +298,20 @@ class HypeTrackActorForm extends FormApplication {
      * Provide data to the handlebars template
      */
     async getData() {
+        const playlistSounds = Playback.getPlaylistSounds(this.data.playlist) ?? [];
+        const trackSpecialOptions = [{value: "", label: game.i18n.localize("MAESTRO.HYPE-TRACK.FormSelectNone")}];
+
+        if (countEntries(playlistSounds)) {
+            trackSpecialOptions.push(
+                {value: MAESTRO.DEFAULT_CONFIG.ItemTrack.playbackModes.random, label: game.i18n.localize("MAESTRO.FORM.PlayRandom")},
+                {value: MAESTRO.DEFAULT_CONFIG.ItemTrack.playbackModes.all, label: game.i18n.localize("MAESTRO.FORM.PlayAll")}
+            );
+        }
+
         return {
-            playlistSounds: Playback.getPlaylistSounds(this.data.playlist),
-            track: this.data.track,
-            playlist: this.data.playlist,
-            playlists: game.playlists
+            playlistOptions: buildSelectOptions(game.playlists.contents, this.data.playlist,
+                [{value: "", label: game.i18n.localize("MAESTRO.FORM.SelectNone")}]),
+            trackOptions: buildSelectOptions(playlistSounds, this.data.track, trackSpecialOptions)
         }
     }
 
@@ -340,7 +327,7 @@ class HypeTrackActorForm extends FormApplication {
 
     /**
      * Activates listeners on the form html
-     * @param {*} html 
+     * @param {*} html
      */
      activateListeners(html) {
         super.activateListeners(html);
@@ -351,21 +338,11 @@ class HypeTrackActorForm extends FormApplication {
 
     /**
      * Playlist select change handler
-     * @param {*} event 
+     * @param {*} event
      */
     _onPlaylistChange(event) {
         event.preventDefault();
         this.data.playlist = event.target.value;
         this.render();
-    }
-
-    _getPlaylistSounds(playlistId) {
-        if (!playlistId || typeof playlistId != 'string') return;
-
-        const playlist = game.playlists.get(playlistId);
-
-        if (!playlist) return;
-
-        return playlist.sounds;
     }
 }

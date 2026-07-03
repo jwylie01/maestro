@@ -152,21 +152,6 @@ export const registerModuleSettings = async function() {
     }),
 
     /* -------------------------------------------- */
-    /*                   Migration                  */
-    /* -------------------------------------------- */
-
-    game.settings.register(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Migration.currentVersion, {
-        name: "MAESTRO.SETTINGS.MigrateCurrentVersionN",
-        hint: "MAESTRO.SETTINGS.MigrateCurrentVersionH",
-        scope: "world",
-        type: String,
-        default: "",
-        onChange: s => {
-
-        }
-    }),
-
-    /* -------------------------------------------- */
     /*                     Misc                     */
     /* -------------------------------------------- */
 
@@ -232,9 +217,9 @@ export const registerModuleSettings = async function() {
         scope: "world",
         type: Object,
         default: {
-            criticalSuccessPlaylist: game.playlists ? game.playlists.contents.find(p => p.name === MAESTRO.DEFAULT_CONFIG.Misc.criticalSuccessPlaylistName) : "",
+            criticalSuccessPlaylist: "",
             criticalSuccessSound: "",
-            criticalFailurePlaylist: game.playlists ? game.playlists.contents.find(p => p.name === MAESTRO.DEFAULT_CONFIG.Misc.criticalFailurePlaylistName) : "",
+            criticalFailurePlaylist: "",
             criticalFailureSound: ""
         },
         config: false,

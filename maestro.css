@@ -4,3 +4,12 @@
   font-size: 16px;
   border-bottom: 1px solid #000;
 }
+
+.maestro-playlist-loop.inactive {
+  opacity: 0.5;
+}
+
+.maestro-playlist-loop.disabled {
+  pointer-events: none;
+  opacity: 0.3;
+}

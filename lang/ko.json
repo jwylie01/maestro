@@ -1,8 +1,8 @@
 {
     "MAESTRO": {
-        "MODULE_NAME": "Maestro",
+        "MODULE_NAME": "Maestro 2.0",
 
-        "MODULE_LABEL": "Maestro",
+        "MODULE_LABEL": "Maestro 2.0",
 
         "SETTINGS.HypeTrackEnableN": "액터 트랙 사용",
         "SETTINGS.HypeTrackEnableH": "액터에 대한 트랙 설정 기능을 사용한다",

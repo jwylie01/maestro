@@ -2,7 +2,6 @@
 import CombatTrack from "./modules/combat-track.js";
 import HypeTrack from "./modules/hype-track.js";
 import ItemTrack from "./modules/item-track.js";
-import { migrationHandler } from "./modules/migration.js";
 import * as Misc from "./modules/misc.js";
 import * as Playback from "./modules/playback.js";
 import { registerModuleSettings } from "./modules/settings.js";
@@ -52,12 +51,6 @@ export default class Conductor {
 
             //Set a timeout to allow the sheets to register correctly before we try to hook on them
             window.setTimeout(Conductor._readyHookRegistrations, 500);
-            //Conductor._readyHookRegistrations();
-
-            if (game.version >= "0.4.4" && Misc.isFirstGM()) {
-                game.maestro.migration = {};
-                migrationHandler();
-            }
         });
     }
 
@@ -83,25 +76,14 @@ export default class Conductor {
 
         // Pre-update Hooks
         Conductor._hookOnPreUpdatePlaylistSound();
-        Conductor._hookOnPreUpdatePlaylist();
-        Conductor._hookOnPreUpdateCombat();
 
         // Update Hooks
+        Conductor._hookOnPreUpdateCombat();
         Conductor._hookOnUpdateCombat();
-        //Conductor._hookOnUpdatePlaylist();
 
         // Delete hooks
         Conductor._hookOnDeleteCombat();
         Conductor._hookOnDeleteItem();
-    }
-
-    /**
-     * PreUpdate Playlist Hook
-     */
-    static _hookOnPreUpdatePlaylist() {
-        Hooks.on("preUpdatePlaylist", (playlist, update, options, userId) => {
-            // unused
-        });
     }
 
     /**
@@ -117,8 +99,8 @@ export default class Conductor {
      * PreCreate Chat Message Hook
      */
     static _hookOnPreCreateChatMessage() {
-        Hooks.on("preCreateChatMessage", (message, options, userId) => {
-            Misc._onPreCreateChatMessage(message, options);
+        Hooks.on("preCreateChatMessage", (message, data, options, userId) => {
+            Misc._onPreCreateChatMessage(message, data, options, userId);
         });
     }
 
@@ -156,22 +138,26 @@ export default class Conductor {
             CombatTrack._onDeleteCombat(combat, options, userId);
         });
     }
-    
+
     /**
-     * Render Actor SheetsHook
+     * Render Actor Sheet Hooks
+     * Registered for both Application V1 (renderActorSheet) and V2 (renderActorSheetV2) sheets
      */
     static _hookOnRenderActorSheet() {
         Hooks.on("renderActorSheet", (app, html, data) => {
             HypeTrack._onRenderActorSheet(app, html, data);
         });
-       
+
+        Hooks.on("renderActorSheetV2", (app, html, data) => {
+            HypeTrack._onRenderActorSheet(app, html, data);
+        });
     }
 
     /**
-     * RenderChatMessage Hook
+     * RenderChatMessageHTML Hook (replaces renderChatMessage in v13+)
      */
     static _hookOnRenderChatMessage() {
-        Hooks.on("renderChatMessage", (message, html, data) => {
+        Hooks.on("renderChatMessageHTML", (message, html, data) => {
             ItemTrack._onRenderChatMessage(message, html, data);
             Misc._onRenderChatMessage(message, html, data);
         })
@@ -196,20 +182,24 @@ export default class Conductor {
     }
 
     /**
-     * Render Item Sheet Hook
+     * Render Item Sheet Hooks
+     * Registered for both Application V1 (renderItemSheet) and V2 (renderItemSheetV2) sheets
      */
     static _hookOnRenderItemSheet() {
         Hooks.on("renderItemSheet", (app, html, data) => {
             ItemTrack._onRenderItemSheet(app, html, data);
         });
-        
+
+        Hooks.on("renderItemSheetV2", (app, html, data) => {
+            ItemTrack._onRenderItemSheet(app, html, data);
+        });
     }
 }
 
 /**
  * Tap, tap, tap, ahem
  * Shall we begin?
- * 
+ *
  * Initiates the module
  */
 Conductor.begin();

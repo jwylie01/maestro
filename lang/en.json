@@ -1,9 +1,7 @@
 {
     "MAESTRO": {
-        "MODULE_NAME": "Maestro",
-
-        "MODULE_LABEL": "Maestro",
-
+        "MODULE_NAME": "Maestro 2.0",
+        "MODULE_LABEL": "Maestro 2.0",
         "SETTINGS.HypeTrackEnableN": "Enable Hype Track",
         "SETTINGS.HypeTrackEnableH": "Enable the ability to set a Track for an Actor",
         "SETTINGS.HypeTrackPauseOthersN": "Pause Other Playlist Sounds (Hype Track)",
@@ -42,13 +40,10 @@
         "SETTINGS.CriticalSuccessFailureTracks.SuccessThresholdH": "What is the value that a roll must be at or above to critically succeed",
         "SETTINGS.CriticalSuccessFailureTracks.FailureThresholdN": "Failure Threshold",
         "SETTINGS.CriticalSuccessFailureTracks.FailureThresholdH": "What is the value that a roll must be at or below to critically fail",
-
         "SETTINGS.ItemTrack.DeletedItemsN": "Deleted Items",
         "SETTINGS.ItemTrack.DeletedItemsH": "Deleted Item Ids and and their associated Item Tracks",
-        
         "SETTINGS.Config.ButtonN": "Maestro Config",
         "SETTINGS.Config.ButtonH": "Additional Maestro Settings",
-
         "MAESTRO-CONFIG.CriticalSuccessFailureHeading": "Critical Success/Failure Tracks",
         "MAESTRO-CONFIG.CriticalSuccessPlaylist": "Critical Success Playlist",
         "MAESTRO-CONFIG.CriticalSuccessSound": "Critical Success Sound",
@@ -58,11 +53,9 @@
         "MAESTRO-CONFIG.Critical.FormSoundNotes": "Select a track/playback mode",
         "MAESTRO-CONFIG.Failure.FormPlaylistNotes": "Select a playlist for Critical Failure Tracks",
         "MAESTRO-CONFIG.Failure.FormSoundNotes": "Select a track/playback mode",
-
         "NOTIFICATIONS.MigrationStarting": "Maestro | Data migration starting...",
         "NOTIFICATIONS.MigrationSucceeded": "Maestro | Data migration succeeded!",
         "NOTIFICATIONS.MigrationFailed": "Maestro | Data migration finished with errors. Please see console for additional details.",
-
         "LOGS.MigrationFoundSceneFlags": "Maestro | Found Scenes with Playlist flags. Attempting to migrate...",
         "LOGS.MigrationSceneFlagsFailed": "Maestro | Failed to migrate Scene Playlist",
         "LOGS.MigrationSceneFlagsSuccessful": "Maestro | Successfully migrated Scene Playlist",
@@ -85,8 +78,7 @@
         "LOGS.MigrationTokenOwnedItemsMatched": "Maestro | Matched Item Track in Playlist:",
         "LOGS.MigrationTokenOwnedItemsNotMatched": "Maestro | Unable to match flag to track in Playlist:",
         "LOGS.MigrationTokenOwnedItemFailed": "Maestro | Failed to map Tracks for Token OwnedItems:",
-        "LOGS.MigrationTokenOwnedItemSuccess": "Maestro | Successfully mapped Tracks for Token OwnedItems:", 
-        
+        "LOGS.MigrationTokenOwnedItemSuccess": "Maestro | Successfully mapped Tracks for Token OwnedItems:",
         "FORM.PlaylistSelection": "Select a Playlist",
         "FORM.TrackSelection": "Select a Track",
         "FORM.SaveTrack": "Save Track",
@@ -94,9 +86,8 @@
         "FORM.SelectNone": "--None--",
         "FORM.PlayRandom": "--Play Random Track--",
         "FORM.PlayAll": "--Play Playlist--",
-
         "HYPE-TRACK.Form.PlaylistLabel": "Hype Playlist for this Actor",
-        "HYPE-TRACK.Form.TrackLabel": "Track to Play", 
+        "HYPE-TRACK.Form.TrackLabel": "Track to Play",
         "HYPE-TRACK.FormPlaylistTooltip": "Select a Playlist",
         "HYPE-TRACK.FormTrackSelection": "Select a Track",
         "HYPE-TRACK.FormNotes": "Select the audio file to use as this actor's Hype Track",
@@ -104,7 +95,6 @@
         "HYPE-TRACK.FormPlaylistNotes": "Select the playlist that contains the Hype Track/s to play",
         "HYPE-TRACK.FormSaveTrack": "Save Track",
         "HYPE-TRACK.FormSelectNone": "--None--",
-
         "ITEM-TRACK.FormPlaylistTooltip": "Select a Playlist",
         "ITEM-TRACK.FormTrackTooltip": "Select a Track",
         "ITEM-TRACK.FormSelectNone": "--None--",
@@ -112,7 +102,6 @@
         "ITEM-TRACK.FormTrackNotes": "Select a track to play when this item is rolled",
         "ITEM-TRACK.FormPlayRandom": "--Play Random Track--",
         "ITEM-TRACK.FormPlayAll": "--Play Playlist--",
-
         "COMBAT-TRACK.FormButtonTitle": "Combat Track Config",
         "COMBAT-TRACK.FormDefaultsHeading": "DEFAULTS",
         "COMBAT-TRACK.FormEncounterHeading": "Encounter",
@@ -132,9 +121,20 @@
         "COMBAT-TRACK.FormSelectNone": "--None--",
         "COMBAT-TRACK.FormPlayRandom": "--Play Random Track--",
         "COMBAT-TRACK.FormPlayAll": "--Play Playlist--",
-
         "PLAYLIST-LOOP.ButtonTooltipLoop": "Loop Playlist",
         "PLAYLIST-LOOP.ButtonTooltipNoLoop": "Don't Loop Playlist",
-        "PLAYLIST-LOOP.ButtonToolTipDisabled": "Loop Disabled"
+        "PLAYLIST-LOOP.ButtonToolTipDisabled": "Loop Disabled",
+        "HYPE-TRACK": {
+            "PlayHype": {
+                "NoActor": "Maestro | Play Hype Track: No matching Actor found",
+                "NoTrack": "Maestro | Play Hype Track: This Actor has no Hype Track set",
+                "NoPlaylist": "Maestro | Play Hype Track: No matching Playlist found"
+            }
+        },
+        "PLAYBACK": {
+            "PlaySoundByName": {
+                "NoPlaylist": "Maestro | Play Sound By Name: No Playlist containing that sound found"
+            }
+        }
     }
 }

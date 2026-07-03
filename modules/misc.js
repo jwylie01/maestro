@@ -6,7 +6,91 @@ export function _onRenderPlaylistDirectory(app, html, data) {
     _addPlaylistLoopToggle(html);
 }
 
-export class MaestroConfigForm extends FormApplication {
+/* -------------------------------------------- */
+/*                Shared helpers                */
+/* -------------------------------------------- */
+
+/**
+ * Normalizes the html argument of a render hook to an HTMLElement
+ * Application V1 hooks pass jQuery, Application V2 hooks pass HTMLElement
+ * @param {HTMLElement|jQuery} html
+ * @returns {HTMLElement}
+ */
+export function getHTMLElement(html) {
+    return html instanceof HTMLElement ? html : html[0];
+}
+
+/**
+ * Builds a list of {value, label, selected} options for a select element
+ * @param {Array|Collection} entries - documents (or objects with id/name) to build options from
+ * @param {String} selected - the currently selected value
+ * @param {Object[]} specialOptions - additional {value, label} options to prepend
+ * @returns {Object[]} the options
+ */
+export function buildSelectOptions(entries, selected, specialOptions=[]) {
+    const list = entries?.contents ?? entries ?? [];
+    const entryOptions = Array.from(list).map(e => ({value: e.id, label: e.name}));
+    return [...specialOptions, ...entryOptions].map(o => ({
+        value: o.value,
+        label: o.label,
+        selected: o.value === (selected ?? "")
+    }));
+}
+
+/**
+ * Counts the members of an Array or Collection
+ * @param {Array|Collection} collection
+ * @returns {Number}
+ */
+export function countEntries(collection) {
+    return collection?.size ?? collection?.length ?? 0;
+}
+
+/**
+ * Adds a button to an Application's window header, before the close button
+ * Supports both Application V1 (jQuery/anchor) and V2 (HTMLElement/button) apps
+ * @param {Application|ApplicationV2} app
+ * @param {HTMLElement|jQuery} html
+ * @param {Object} options
+ * @param {String} options.buttonClass - css class identifying this button
+ * @param {String} options.icon - icon classes
+ * @param {String} options.label - button text (V1 apps only)
+ * @param {String} options.tooltip - tooltip/title text
+ * @param {Function} options.onClick - click handler
+ * @returns {HTMLElement|void} the created button
+ */
+export function addSheetHeaderButton(app, html, {buttonClass, icon, label="", tooltip="", onClick}={}) {
+    const element = getHTMLElement(html);
+    const header = element.querySelector(".window-header");
+
+    if (!header || header.querySelector(`.${buttonClass}`)) return;
+
+    const isV2 = !!foundry.applications?.api?.ApplicationV2 && app instanceof foundry.applications.api.ApplicationV2;
+    let button;
+
+    if (isV2) {
+        button = document.createElement("button");
+        button.type = "button";
+        button.className = `header-control icon ${icon} ${buttonClass}`;
+        button.dataset.tooltip = tooltip;
+        button.setAttribute("aria-label", tooltip);
+    } else {
+        button = document.createElement("a");
+        button.className = buttonClass;
+        button.title = tooltip;
+        button.innerHTML = `<i class="${icon}"></i><span> ${label}</span>`;
+    }
+
+    button.addEventListener("click", onClick);
+
+    const closeButton = header.querySelector(`[data-action="close"], a.close, .close`);
+    if (closeButton) header.insertBefore(button, closeButton);
+    else header.appendChild(button);
+
+    return button;
+}
+
+export class MaestroConfigForm extends foundry.appv1.api.FormApplication {
     constructor(data, options) {
         super(data, options);
         this.data = data;
@@ -16,7 +100,7 @@ export class MaestroConfigForm extends FormApplication {
      * Default Options for this FormApplication
      */
     static get defaultOptions() {
-        return mergeObject(super.defaultOptions, {
+        return foundry.utils.mergeObject(super.defaultOptions, {
             id: "maestro-config",
             title: MAESTRO.DEFAULT_CONFIG.Misc.maestroConfigTitle,
             template: MAESTRO.DEFAULT_CONFIG.Misc.maestroConfigTemplatePath,
@@ -24,7 +108,7 @@ export class MaestroConfigForm extends FormApplication {
             width: 500
         });
     }
-    
+
     /**
      * Provide data to the template
      */
@@ -34,22 +118,32 @@ export class MaestroConfigForm extends FormApplication {
         if (!this.data && criticalSuccessFailureTracks) {
             this.data = criticalSuccessFailureTracks;
         }
-        
+
+        this.data = this.data ?? {};
+
+        const noneOption = {value: "", label: game.i18n.localize("MAESTRO.FORM.SelectNone")};
+        const playbackModeOptions = [
+            {value: MAESTRO.DEFAULT_CONFIG.ItemTrack.playbackModes.random, label: game.i18n.localize("MAESTRO.FORM.PlayRandom")},
+            {value: MAESTRO.DEFAULT_CONFIG.ItemTrack.playbackModes.all, label: game.i18n.localize("MAESTRO.FORM.PlayAll")}
+        ];
+
+        const successSounds = Playback.getPlaylistSounds(this.data.criticalSuccessPlaylist) ?? [];
+        const failureSounds = Playback.getPlaylistSounds(this.data.criticalFailurePlaylist) ?? [];
+
         return {
-            playlists: game.playlists.contents,
-            criticalSuccessPlaylist: this.data.criticalSuccessPlaylist,
-            criticalSuccessPlaylistSounds: this.data.criticalSuccessPlaylist ? Playback.getPlaylistSounds(this.data.criticalSuccessPlaylist) : null,
-            criticalSuccessSound: this.data.criticalSuccessSound,
-            criticalFailurePlaylist: this.data.criticalFailurePlaylist,
-            criticalFailurePlaylistSounds: this.data.criticalFailurePlaylist ? Playback.getPlaylistSounds(this.data.criticalFailurePlaylist) : null,
-            criticalFailureSound: this.data.criticalFailureSound
-        } 
+            criticalSuccessPlaylistOptions: buildSelectOptions(game.playlists.contents, this.data.criticalSuccessPlaylist, [noneOption]),
+            criticalSuccessSoundOptions: buildSelectOptions(successSounds, this.data.criticalSuccessSound,
+                countEntries(successSounds) ? [noneOption, ...playbackModeOptions] : [noneOption]),
+            criticalFailurePlaylistOptions: buildSelectOptions(game.playlists.contents, this.data.criticalFailurePlaylist, [noneOption]),
+            criticalFailureSoundOptions: buildSelectOptions(failureSounds, this.data.criticalFailureSound,
+                countEntries(failureSounds) ? [noneOption, ...playbackModeOptions] : [noneOption])
+        }
     }
 
     /**
      * Update on form submit
-     * @param {*} event 
-     * @param {*} formData 
+     * @param {*} event
+     * @param {*} formData
      */
     async _updateObject(event, formData) {
         await game.settings.set(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.criticalSuccessFailureTracks, {
@@ -78,85 +172,78 @@ export class MaestroConfigForm extends FormApplication {
                 this.data.criticalFailurePlaylist = event.target.value;
                 this.render();
             });
-        } 
+        }
     }
 }
 
 /**
  * Adds a new toggle for loop to the playlist controls
- * @param {*} html 
+ * @param {HTMLElement|jQuery} html
  */
 function _addPlaylistLoopToggle(html) {
     if (!game.user.isGM) return;
-    
-    const playlistModeButtons = html.find('[data-action="playlist-mode"]');
-    const loopToggleHtml = 
-        `<a class="sound-control" data-action="playlist-loop" title="${game.i18n.localize("MAESTRO.PLAYLIST-LOOP.ButtonTooltipLoop")}">
-            <i class="fas fa-sync"></i>
-        </a>`;
 
-    playlistModeButtons.after(loopToggleHtml);
+    const element = getHTMLElement(html);
+    // v13+ uses camelCase actions and data-entry-id, older versions used kebab-case and data-document-id
+    const modeButtons = element.querySelectorAll(`[data-action="playlistMode"], [data-action="playlist-mode"]`);
 
-    const loopToggleButtons = html.find('[data-action="playlist-loop"]');
-
-    if (loopToggleButtons.length === 0) {
-        return;
-    }
-
-    // Widen the parent div
-    const controlsDiv = loopToggleButtons.closest(".playlist-controls");
-    controlsDiv.css("flex-basis", "110px");
-
-    for (const button of loopToggleButtons) {
-        const buttonClass = button.getAttribute("class");
-        const buttonTitle = button.getAttribute("title");
-
-        const playlistDiv = button.closest(".document");
-        const playlistId = playlistDiv.getAttribute("data-document-id");
+    for (const modeButton of modeButtons) {
+        const playlistEl = modeButton.closest("[data-entry-id], [data-document-id]");
+        const playlistId = playlistEl?.dataset.entryId ?? playlistEl?.dataset.documentId;
         const playlist = game.playlists.get(playlistId);
 
+        if (!playlist || playlistEl.querySelector(".maestro-playlist-loop")) continue;
+
         const loop = playlist.getFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.PlaylistLoop.flagNames.loop);
-        const mode = playlist.mode;
-        if ([-1, 2].includes(mode)) {
-            button.setAttribute("class", buttonClass.concat(" disabled"));
-            button.setAttribute("title", game.i18n.localize("MAESTRO.PLAYLIST-LOOP.ButtonToolTipDisabled"));
+        const modeDisabled = [CONST.PLAYLIST_MODES.DISABLED, CONST.PLAYLIST_MODES.SIMULTANEOUS].includes(playlist.mode);
+
+        let loopButton;
+        if (modeButton.tagName === "BUTTON") {
+            loopButton = document.createElement("button");
+            loopButton.type = "button";
+            loopButton.className = "inline-control icon fas fa-sync maestro-playlist-loop";
+        } else {
+            loopButton = document.createElement("a");
+            loopButton.className = "sound-control maestro-playlist-loop";
+            loopButton.innerHTML = `<i class="fas fa-sync"></i>`;
+        }
+
+        let tooltip;
+        if (modeDisabled) {
+            tooltip = game.i18n.localize("MAESTRO.PLAYLIST-LOOP.ButtonToolTipDisabled");
+            loopButton.classList.add("disabled");
         } else if (loop === false) {
-            button.setAttribute("class", buttonClass.concat(" inactive"));
-            button.setAttribute("title", game.i18n.localize("MAESTRO.PLAYLIST-LOOP.ButtonTooltipNoLoop"));
+            tooltip = game.i18n.localize("MAESTRO.PLAYLIST-LOOP.ButtonTooltipNoLoop");
+            loopButton.classList.add("inactive");
+        } else {
+            tooltip = game.i18n.localize("MAESTRO.PLAYLIST-LOOP.ButtonTooltipLoop");
         }
+
+        loopButton.dataset.tooltip = tooltip;
+        loopButton.setAttribute("aria-label", tooltip);
+
+        if (!modeDisabled) {
+            loopButton.addEventListener("click", async event => {
+                event.preventDefault();
+                const currentLoop = playlist.getFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.PlaylistLoop.flagNames.loop);
+
+                // The flag update triggers a re-render of the directory, which rebuilds the button state
+                if (currentLoop === false) {
+                    await playlist.unsetFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.PlaylistLoop.flagNames.loop);
+                } else {
+                    await playlist.setFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.PlaylistLoop.flagNames.loop, false);
+                }
+            });
+        }
+
+        modeButton.after(loopButton);
     }
-
-    loopToggleButtons.on("click", event => {
-        const button = event.currentTarget;
-        const buttonClass = button.getAttribute("class");
-
-        if (!buttonClass) {
-            return;
-        }
-
-        const playlistDiv = button.closest(".document");
-        const playlistId = playlistDiv.getAttribute("data-document-id");
-
-        if (!playlistId) {
-            return;
-        }
-
-        if (buttonClass.includes("inactive")) {
-            game.playlists.get(playlistId).unsetFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.PlaylistLoop.flagNames.loop);
-            button.setAttribute("class", buttonClass.replace(" inactive", ""));
-            button.setAttribute("title", game.i18n.localize("MAESTRO.PLAYLIST-LOOP.ButtonTooltipLoop"));
-        } else { 
-            game.playlists.get(playlistId).setFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.PlaylistLoop.flagNames.loop, false);
-            button.setAttribute("class", buttonClass.concat(" inactive"));
-            button.setAttribute("title", game.i18n.localize("MAESTRO.PLAYLIST-LOOP.ButtonTooltipNoLoop"));
-        }
-    });
 }
 
 /**
  * PreUpdate Playlist Sound handler
- * @param {*} playlist 
- * @param {*} update 
+ * @param {*} playlist
+ * @param {*} update
  * @todo maybe return early if no flag set?
  */
 export function _onPreUpdatePlaylistSound(sound, update, options, userId) {
@@ -165,14 +252,16 @@ export function _onPreUpdatePlaylistSound(sound, update, options, userId) {
 
     sound._maestroSkip = true;
     const playlist = sound.parent;
+    const updateId = update?._id ?? update?.id;
+
     // Return if there's no id or the playlist is not in sequential or shuffle mode
-    if (!playlist?.playing || !update?.id || ![0, 1].includes(playlist?.mode)) {
+    if (!playlist?.playing || !updateId || ![CONST.PLAYLIST_MODES.SEQUENTIAL, CONST.PLAYLIST_MODES.SHUFFLE].includes(playlist?.mode)) {
         return true;
     }
 
     // If the update is a sound playback ending, save it as the previous track and return
     if (update?.playing === false) {
-        playlist.setFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.PlaylistLoop.flagNames.previousSound, update.id);
+        playlist.setFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.PlaylistLoop.flagNames.previousSound, updateId);
         return true;
     }
 
@@ -184,38 +273,39 @@ export function _onPreUpdatePlaylistSound(sound, update, options, userId) {
     let order;
 
     // If shuffle order exists, use that, else map the sounds to an order
-    if (playlist?.mode === 1) {
+    if (playlist?.mode === CONST.PLAYLIST_MODES.SHUFFLE) {
         order = playlist.playbackOrder;
     } else {
         order = playlist?.sounds.map(s => s.id);
-    }        
-    
+    }
+
     const previousIdx = order.indexOf(previousSound);
     const playlistloop = playlist.getFlag(MAESTRO.MODULE_NAME, MAESTRO.DEFAULT_CONFIG.PlaylistLoop.flagNames.loop);
 
     // If the previous sound was the last in the order, and playlist loop is set to false, don't play the incoming sound
-    if (previousIdx === (playlist?.sounds?.length - 1) && playlistloop === false) {
+    if (previousIdx === (playlist?.sounds?.size - 1) && playlistloop === false) {
         update.playing = false;
         playlist.playing = false;
-    }        
+    }
 }
 
 /**
  * PreCreate Chat Message handler
  */
-export function _onPreCreateChatMessage(message, options, userId) {
+export function _onPreCreateChatMessage(message, data, options, userId) {
     const removeDiceSound = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.disableDiceSound);
+    const diceSound = CONFIG.sounds?.dice ?? "sounds/dice.wav";
 
-    if (removeDiceSound && message.sound === "sounds/dice.wav") {
-        message.sound = "";
+    if (removeDiceSound && data.sound === diceSound) {
+        message.updateSource({sound: null});
     }
 }
 
 /**
  * Render Chat Message handler
- * @param {*} message 
- * @param {*} html 
- * @param {*} data 
+ * @param {*} message
+ * @param {HTMLElement} html
+ * @param {*} data
  */
 export function _onRenderChatMessage(message, html, data) {
     const enableCriticalSuccessFailureTracks = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.enableCriticalSuccessFailureTracks);
@@ -231,17 +321,17 @@ export function _onRenderChatMessage(message, html, data) {
  */
 function playCriticalSuccessFailure(message) {
     if ( !isFirstGM() || !message.isRoll || !message.isContentVisible ) return;
-    
+
     for (const roll of message.rolls) {
         checkRollSuccessFailure(roll);
     }
-    
+
 }
 
 /**
  * Play a sound for critical success or failure on d20 rolls
  * Adapted from highlightCriticalSuccessFailure in the dnd5e system
- * @param {*} roll 
+ * @param {*} roll
  */
 function checkRollSuccessFailure(roll) {
     // Highlight rolls where the first part is a d20 roll
@@ -265,7 +355,7 @@ function checkRollSuccessFailure(roll) {
     // Get the success/failure criteria
     const successSetting = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.criticalSuccessThreshold);
     const failureSetting = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.Misc.criticalFailureThreshold);
-    
+
     const successThreshold = successSetting ?? d.options.critical;
     const failureThreshold = failureSetting ?? d.options.fumble;
 

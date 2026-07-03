@@ -5,7 +5,7 @@ import * as MAESTRO from "./config.js";
 * Get all the sounds in a specific playlist
 */
 export function getPlaylistSounds(playlistId) {
-    if (!playlistId) {
+    if (!playlistId || typeof playlistId !== "string") {
         return;
     }
     const playlist = game.playlists.get(playlistId);
@@ -14,12 +14,12 @@ export function getPlaylistSounds(playlistId) {
         return;
     }
 
-    return game.playlists.get(playlistId).sounds;
+    return playlist.sounds;
 }
 
 /**
  * For a given trackId get the corresponding playlist sound
- * @param {String} trackId 
+ * @param {String} trackId
  */
 export function getPlaylistSound(trackId) {
     if (!this.playlist) {
@@ -30,8 +30,8 @@ export function getPlaylistSound(trackId) {
 
 /**
  * Play a playlist sound based on the given trackId
- * @param {String} playlistId - the playlist id
  * @param {String} trackId - the track Id or playback mode
+ * @param {String} playlistId - the playlist id
  */
 export async function playTrack(trackId, playlistId) {
     if (!playlistId || !trackId) {
@@ -76,7 +76,8 @@ export async function playPlaylist(playlistId) {
 
 /**
  * Finds a Playlist sound by its name
- * @param {*} name 
+ * @param {*} searchString
+ * @param {*} findBy
  */
 export function findPlaylistSound(searchString, findBy="name") {
     const playlist = game.playlists.contents.find(p => p.sounds.find(s => s[findBy] === searchString));
@@ -85,26 +86,38 @@ export function findPlaylistSound(searchString, findBy="name") {
 
 /**
  * Play a sound by its name rather than id
- * @param {*} name 
- * @param {*} options 
+ * @param {*} name
+ * @param {*} options
  */
 export function playSoundByName(name, {playlist=null}={}) {
+    let sound = null;
+
     // If no playlist provided, try to find the first matching one
     if (!playlist) {
-        let {playlist, sound} = findPlaylistSound(name);
-        
-        if (!playlist) {
-            ui.warn(game.i18n.localize("MAESTRO.PLAYBACK.PlaySoundByName.NoPlaylist"));
+        const match = findPlaylistSound(name);
+
+        if (!match?.playlist) {
+            ui.notifications.warn(game.i18n.localize("MAESTRO.PLAYBACK.PlaySoundByName.NoPlaylist"));
             return;
         }
+
+        ({playlist, sound} = match);
+    } else {
+        if (typeof playlist === "string") playlist = game.playlists.get(playlist) ?? game.playlists.getName(playlist);
+        sound = playlist?.sounds.find(s => s.name === name);
     }
 
-    playlist.playSound(name);
+    if (!playlist || !sound) {
+        ui.notifications.warn(game.i18n.localize("MAESTRO.PLAYBACK.PlaySoundByName.NoPlaylist"));
+        return;
+    }
+
+    return playlist.playSound(sound);
 }
 
 /**
- * Pauses a playing howl
- * @param {*} sounds 
+ * Pauses playing playlist sounds
+ * @param {*} sounds
  */
 export async function pauseSounds(sounds) {
     if (!sounds) {
@@ -115,33 +128,28 @@ export async function pauseSounds(sounds) {
         sounds = [sounds];
     }
 
-    const soundsToPause = [];
     const pausedSounds = [];
 
     for (let sound of sounds) {
-        let playlistSound;
-
         // If the sound param is a string, determine if it is a name or a path
         if (typeof(sound) === "string") {
-            playlistSound = findPlaylistSound(sound)?.sound || findPlaylistSound(sound, "path")?.sound || null;
+            sound = findPlaylistSound(sound)?.sound ?? findPlaylistSound(sound, "path")?.sound ?? null;
         }
 
-        if (!sound instanceof PlaylistSound) {
-            return;
+        if (!(sound instanceof CONFIG.PlaylistSound.documentClass)) {
+            continue;
         }
-        
-        sound.update({playing: false, pausedTime: sound.sound.currentTime});
+
+        await sound.update({playing: false, pausedTime: sound.sound?.currentTime ?? null});
         pausedSounds.push(sound);
     }
 
-    //const soundUpdate = await PlaylistSound.updateMany(soundsToPause);
-    //const pausedSounds = soundUpdate.filter(s => s.pausedTime);
     return pausedSounds;
 }
 
 /**
- * Resume playback on one or many howls
- * @param {*} sounds 
+ * Resume playback on one or many playlist sounds
+ * @param {*} sounds
  */
 export function resumeSounds(sounds) {
     if (!(sounds instanceof Array)) {
@@ -151,9 +159,6 @@ export function resumeSounds(sounds) {
     const resumedSounds = [];
 
     for (const sound of sounds) {
-        //const howl = game.audio.sounds[sound.path].howl;
-
-        //howl.play();
         sound.update({playing: true});
 
         resumedSounds.push(sound);
@@ -165,13 +170,13 @@ export function resumeSounds(sounds) {
 /**
  * Pauses all active playlist sounds
  */
-export function pauseAll() {
+export async function pauseAll() {
     const activeSounds = game.playlists.contents.flatMap(p => {
-        return p.sounds?.contents?.filter(s => s.playing);
+        return p.sounds?.contents?.filter(s => s.playing) ?? [];
     });
 
-    if (!activeSounds.length) return;
+    if (!activeSounds.length) return [];
 
-    const pausedSounds = pauseSounds(activeSounds);
+    const pausedSounds = await pauseSounds(activeSounds);
     return pausedSounds;
 }

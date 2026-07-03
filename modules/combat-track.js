@@ -1,5 +1,5 @@
 import * as MAESTRO from "./config.js";
-import { isFirstGM } from "./misc.js";
+import { addSheetHeaderButton, buildSelectOptions, countEntries, isFirstGM } from "./misc.js";
 import * as Playback from "./playback.js";
 
 /**
@@ -48,7 +48,7 @@ export default class CombatTrack {
     /* -------------------------------------------- */
 
     /**
-     * Checks for the presence of the Hype Tracks playlist, creates one if none exist
+     * Checks for the presence of the Combat Tracks playlist, creates one if none exist
      */
     async _checkForCombatTracksPlaylist() {
         const enabled = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.CombatTrack.enable);
@@ -62,24 +62,24 @@ export default class CombatTrack {
     }
 
     /**
-     * Create the Hype Tracks playlist if the create param is true
+     * Create the Combat Tracks playlist if the create param is true
      */
     async _createCombatTracksPlaylist() {
         return await Playlist.create({"name": MAESTRO.DEFAULT_CONFIG.CombatTrack.playlistName});
     }
-    
+
     /**
      * Checks the updating Combat instance to determine if it just starting (round 0 => round 1)
-     * @param {*} combat 
-     * @param {*} update 
-     * @param {*} options 
+     * @param {*} combat
+     * @param {*} update
+     * @param {*} options
      */
     static _checkCombatStart(combat, update, options) {
         const combatStart = combat.round === 0 && update.round === 1;
 
         if (!isFirstGM() || !combatStart) return;
 
-        setProperty(options, `${MAESTRO.MODULE_NAME}.${MAESTRO.FLAGS.CombatTrack.combatStarted}`, true);
+        foundry.utils.setProperty(options, `${MAESTRO.MODULE_NAME}.${MAESTRO.FLAGS.CombatTrack.combatStarted}`, true);
     }
 
     /**
@@ -88,7 +88,7 @@ export default class CombatTrack {
      * @param update
      */
     async _getCombatTrack(combat, update, options) {
-        const combatStarted = getProperty(options, `${MAESTRO.MODULE_NAME}.${MAESTRO.FLAGS.CombatTrack.combatStarted}`);
+        const combatStarted = foundry.utils.getProperty(options, `${MAESTRO.MODULE_NAME}.${MAESTRO.FLAGS.CombatTrack.combatStarted}`);
 
         if (!isFirstGM() || !combatStarted) {
             return;
@@ -110,7 +110,7 @@ export default class CombatTrack {
         }
 
         const pauseOtherSetting = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.CombatTrack.pauseOthers);
-        
+
         if (pauseOtherSetting) {
             this.pausedSounds = await Playback.pauseAll();
         }
@@ -119,19 +119,19 @@ export default class CombatTrack {
         switch (track) {
             case MAESTRO.DEFAULT_CONFIG.CombatTrack.playbackModes.all:
                 return await Playback.playPlaylist(playlist);
-                
-            
+
+
             case MAESTRO.DEFAULT_CONFIG.CombatTrack.playbackModes.random:
                 return await Playback.playTrack(track, playlist);
-        
+
             default:
-                return await Playback.playTrack(track, playlist);     
+                return await Playback.playTrack(track, playlist);
         }
     }
-    
+
     /**
      * Stops any playing combat tracks
-     * @param {*} combat 
+     * @param {*} combat
      */
     async _stopCombatTrack(combat) {
         const enabled = game.settings.get(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.CombatTrack.enable);
@@ -153,6 +153,10 @@ export default class CombatTrack {
         }
 
         const playlist = game.playlists.get(playlistId);
+
+        if (!playlist) {
+            return;
+        }
 
         // Stop combat playlist if it is playing
         if (playlist.playing) {
@@ -191,10 +195,10 @@ export default class CombatTrack {
     }
 
     /**
-     * Adds a button to the Combat sheet to open the Combat Track form
-     * @param {Object} app 
-     * @param {Object} html 
-     * @param {Object} data 
+     * Adds a button to the Combat Tracker Config to open the Combat Track form
+     * @param {Object} app
+     * @param {HTMLElement|jQuery} html
+     * @param {Object} data
      */
     static async _addCombatTrackButton(app, html, data) {
         if (!game.user.isGM) {
@@ -206,38 +210,30 @@ export default class CombatTrack {
             return;
         }
 
-        /**
-         * Combat Track Button html literal
-         * @todo replace with a template instead
-         */
-        const combatTrackConfigButton = $(
-            `<a class="${MAESTRO.DEFAULT_CONFIG.CombatTrack.name}" title="${MAESTRO.MODULE_LABEL} ${MAESTRO.DEFAULT_CONFIG.CombatTrack.aTitle}">
-                <i class="${MAESTRO.DEFAULT_CONFIG.CombatTrack.buttonIcon}"></i>
-                <span> ${MAESTRO.DEFAULT_CONFIG.CombatTrack.buttonText}</span>
-            </a>`
-        );
+        const button = addSheetHeaderButton(app, html, {
+            buttonClass: MAESTRO.DEFAULT_CONFIG.CombatTrack.name,
+            icon: MAESTRO.DEFAULT_CONFIG.CombatTrack.buttonIcon,
+            label: MAESTRO.DEFAULT_CONFIG.CombatTrack.buttonText,
+            tooltip: `${MAESTRO.MODULE_LABEL} ${MAESTRO.DEFAULT_CONFIG.CombatTrack.aTitle}`,
+            onClick: (event) => CombatTrack._onCombatTrackButtonClick(event)
+        });
 
-        const header = html.find(".window-header");
-        const closeButton = header.find("a.close");
-        closeButton.before(combatTrackConfigButton);
-
-        combatTrackConfigButton.on("click", async (event) => CombatTrack._onCombatTrackButtonClick(event));
-        await app.setPosition({height: "auto"});
+        if (button) await app.setPosition({height: "auto"});
     }
 
     /**
      * Click handler for Combat Track button
-     * @param {*} event 
+     * @param {*} event
      */
     static async _onCombatTrackButtonClick(event) {
         const combat = game.combat || null;
-        const flags = combat ? await CombatTrack.getCombatFlags(combat) : null;
+        const flags = combat ? CombatTrack.getCombatFlags(combat) : null;
         const track = flags ? flags.track : "";
         const playlist = flags ? flags.playlist : "";
 
         CombatTrack._openTrackForm(combat, track, playlist, {closeOnSubmit: true});
     }
-    
+
     /**
      * Builds data object and opens the Combat Track form
      * @param {Object} combat - the reference combat
@@ -282,10 +278,10 @@ export default class CombatTrack {
             [`flags.${MAESTRO.MODULE_NAME}.${MAESTRO.DEFAULT_CONFIG.CombatTrack.flagNames.track}`]: trackId
         });
     }
-    
+
     /**
-     * 
-     * @param {*} defaults 
+     *
+     * @param {*} defaults
      */
     async _setDefaultCombatTrack(defaults) {
         await game.settings.set(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.CombatTrack.defaultPlaylist, defaults.playlist);
@@ -296,18 +292,18 @@ export default class CombatTrack {
 /**
  * A FormApplication for managing the combat's track
  */
-class CombatTrackForm extends FormApplication {
+class CombatTrackForm extends foundry.appv1.api.FormApplication {
     constructor(combat, data, options){
         super(data, options);
         this.combat = combat;
         this.data = data;
     }
-    
+
     /**
      * Default Options for this FormApplication
      */
     static get defaultOptions() {
-        return mergeObject(super.defaultOptions, {
+        return foundry.utils.mergeObject(super.defaultOptions, {
             id: "combat-track-form",
             title: MAESTRO.DEFAULT_CONFIG.CombatTrack.aTitle,
             template: MAESTRO.DEFAULT_CONFIG.CombatTrack.templatePath,
@@ -321,29 +317,38 @@ class CombatTrackForm extends FormApplication {
      * Provide data to the handlebars template
      */
     async getData() {
-        const data = {
+        const noneOption = {value: "", label: game.i18n.localize("MAESTRO.COMBAT-TRACK.FormSelectNone")};
+        const defaultOption = {value: "default", label: game.i18n.localize("MAESTRO.COMBAT-TRACK.FormSelectUseDefault")};
+        const playbackModeOptions = [
+            {value: MAESTRO.DEFAULT_CONFIG.CombatTrack.playbackModes.random, label: game.i18n.localize("MAESTRO.COMBAT-TRACK.FormPlayRandom")},
+            {value: MAESTRO.DEFAULT_CONFIG.CombatTrack.playbackModes.all, label: game.i18n.localize("MAESTRO.COMBAT-TRACK.FormPlayAll")}
+        ];
+
+        const defaultPlaylistTracks = Playback.getPlaylistSounds(this.data.defaultPlaylist) ?? [];
+        const playlistTracks = Playback.getPlaylistSounds(this.data.currentPlaylist) ?? [];
+
+        const defaultTrackSpecialOptions = countEntries(defaultPlaylistTracks) ? [noneOption, ...playbackModeOptions] : [noneOption];
+        const trackSpecialOptions = countEntries(playlistTracks) ? [defaultOption, noneOption, ...playbackModeOptions] : [defaultOption, noneOption];
+
+        return {
             combat: this.combat,
-            defaultPlaylist: this.data.defaultPlaylist,
-            defaultTrack: this.data.defaultTrack,
-            defaultPlaylistTracks: Playback.getPlaylistSounds(this.data.defaultPlaylist) || [],
-            playlist: this.data.currentPlaylist || "default",
-            playlists: this.data.playlists,
-            playlistTracks: Playback.getPlaylistSounds(this.data.currentPlaylist) || [],
-            track: this.data.currentTrack || "default"
+            defaultPlaylistOptions: buildSelectOptions(this.data.playlists, this.data.defaultPlaylist, [noneOption]),
+            defaultTrackOptions: buildSelectOptions(defaultPlaylistTracks, this.data.defaultTrack, defaultTrackSpecialOptions),
+            playlistOptions: buildSelectOptions(this.data.playlists, this.data.currentPlaylist || "default", [defaultOption, noneOption]),
+            trackOptions: buildSelectOptions(playlistTracks, this.data.currentTrack || "default", trackSpecialOptions)
         }
-        return data;
     }
 
     /**
      * Executes on form submission.
-     * Set the Hype Track flag on the specified Actor
+     * Sets the default combat track settings and any encounter-specific flags
      * @param {Object} event - the form submission event
      * @param {Object} formData - the form data
      */
     async _updateObject(event, formData) {
         await game.settings.set(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.CombatTrack.defaultPlaylist, formData["default-playlist"]);
         await game.settings.set(MAESTRO.MODULE_NAME, MAESTRO.SETTINGS_KEYS.CombatTrack.defaultTrack, formData["default-track"]);
-        
+
         if (this.combat) {
             if (formData.playlist === "default" && formData.track === "default") {
                 return;
@@ -352,17 +357,17 @@ class CombatTrackForm extends FormApplication {
             const playlist = formData.playlist === "default" ? this.data.defaultPlaylist : formData.playlist;
 
             await game.maestro.combatTrack.setCombatFlags(this.combat, playlist, formData.track);
-        }        
+        }
     }
 
 
 
     /**
      * Activates listeners on the form html
-     * @param {*} html 
+     * @param {*} html
      */
     activateListeners(html) {
-        super.activateListeners(html);        
+        super.activateListeners(html);
 
         const defaultPlaylistSelect = html.find(".default-playlist-select");
         const playlistSelect = html.find(".playlist-select");
@@ -380,7 +385,7 @@ class CombatTrackForm extends FormApplication {
                 this.render();
             });
         }
-        
+
     }
 
 }

@@ -1,6 +1,6 @@
-export const MODULE_NAME = "maestro";
+export const MODULE_NAME = "maestro2";
 
-export const MODULE_LABEL = "Maestro";
+export const MODULE_LABEL = "Maestro 2.0";
 
 export const DEFAULT_CONFIG = {
     get SceneMusic() {
@@ -9,7 +9,7 @@ export const DEFAULT_CONFIG = {
             flagNames: {
                 playlist: "playlistId"
             },
-            templatePath: "./modules/maestro/templates/playlist-select.html"
+            templatePath: "modules/maestro2/templates/playlist-select.html"
         }
        
     },
@@ -25,7 +25,7 @@ export const DEFAULT_CONFIG = {
                 playlist: "playlist",
                 track: "track"
             },
-            templatePath: "./modules/maestro/templates/hype-track-form.html"
+            templatePath: "modules/maestro2/templates/hype-track-form.html"
         }
         
     },
@@ -47,7 +47,7 @@ export const DEFAULT_CONFIG = {
                 random: "random-track",
                 all: "play-all"
             },
-            templatePath: "./modules/maestro/templates/item-track-form.html"
+            templatePath: "modules/maestro2/templates/item-track-form.html"
         }
     },
 
@@ -67,7 +67,7 @@ export const DEFAULT_CONFIG = {
                 random: "random-track",
                 all: "play-all"
             },
-            templatePath: "./modules/maestro/templates/combat-track-form.html"
+            templatePath: "modules/maestro2/templates/combat-track-form.html"
         }
     },
 
@@ -80,18 +80,12 @@ export const DEFAULT_CONFIG = {
         }
     },
 
-    get Migration() {
-        return {
-            targetVersion: "0.5.3"
-        }
-    },
-
     get Misc() {
         return {
             criticalSuccessPlaylistName: "Critical Success Tracks",
             criticalFailurePlaylistName: "Critical Failure Tracks",
             maestroConfigTitle: "Additional Configuration",
-            maestroConfigTemplatePath: "./modules/maestro/templates/maestro-config.html"
+            maestroConfigTemplatePath: "modules/maestro2/templates/maestro-config.html"
         }
     }
 }
@@ -129,12 +123,6 @@ export const SETTINGS_KEYS = {
             defaultPlaylist: "defaultCombatTrackPlaylist",
             defaultTrack: "defaultCombatTrackTrack",
             pauseOthers: "combatTrackPauseOthers"
-        }
-    },
-
-    get Migration() {
-        return {
-            currentVersion: "currentMigrationVersion"
         }
     },
 

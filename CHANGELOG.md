@@ -6,6 +6,29 @@
 3. A GM must be logged in for many of the Maestro functions to work due to underlying Foundry permission requirements.
 4. Game systems that do not include an Item Id reference in their item roll chat messages **cannot** be used with Item Tracks
 ---
+## [2.0.0] - 2026-07-03
+> Maestro 2.0 — a maintained fork of Maestro with support for Foundry VTT v13 and v14 (minimum v13)
+
+### Fork
+- The module id is now `maestro2` and the title is **Maestro 2.0**. It installs alongside (not on top of) the original Maestro; existing Maestro actor/item flags and settings are not carried over.
+
+### Compatibility
+- Updated the module manifest to the modern format (`id` + `compatibility` fields) with v13 as minimum and v14 as verified.
+- Replaced removed global utility functions (`mergeObject`, `getProperty`, `setProperty`, `duplicate`) with their `foundry.utils` equivalents.
+- Forms now extend `foundry.appv1.api.FormApplication` and templates no longer use the removed `{{#select}}` Handlebars helper.
+- Chat message handling now uses the `renderChatMessageHTML` hook (v13+).
+- Sheet header buttons (Hype Track, Item Track, Combat Track) now work on both Application V1 and Application V2 (e.g. dnd5e) sheets.
+- The Playlist Loop toggle was rewritten for the redesigned v13+ Playlists sidebar.
+- Removed the legacy Foundry 0.4.x data migration, which cannot run against modern world data.
+
+### Fixes
+- Disabling the dice sound now works again (the setting previously had no effect on modern Foundry versions).
+- `game.maestro.playByName` and `game.maestro.pause` macros now work correctly.
+- Playlist loop detection now uses the correct update data key, restoring the "don't loop" behavior at the end of a playlist.
+
+### Forge VTT
+- Manifest and template paths are fully relative, so the module works when served from The Forge's assets CDN.
+
 ## [0.9.0] - 2022-08-22
 > This update adds support for Foundry VTT v10
 
