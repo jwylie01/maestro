@@ -8,7 +8,7 @@
 
 [Installation](#Installation)
 
-[Module Manifest](https://github.com/death-save/maestro/releases/latest/download/module.json)
+[Module Manifest](https://github.com/jwylie01/maestro/releases/latest/download/module.json)
 
 [Changelog](https://github.com/death-save/maestro/blob/master/CHANGELOG.md)
 
