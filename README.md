@@ -3,7 +3,7 @@
 ![GitHub downloads (latest)](https://img.shields.io/github/downloads-pre/death-save/maestro/latest/module.zip)
 [![Forge Installs](https://img.shields.io/badge/dynamic/json?label=Forge%20Install%20Base&query=package.installs&suffix=%&url=https://forge-vtt.com/api/bazaar/package/maestro&colorB=brightgreen)](https://forge-vtt.com/)
 
-# Jwylie
+# MAESTRO 2.0
 *Updated from the original project made by DEATH SAVE DEVELOPMENT*    
 
 [Installation](#Installation)
