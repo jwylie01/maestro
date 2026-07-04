@@ -6,6 +6,14 @@
 3. A GM must be logged in for many of the Maestro functions to work due to underlying Foundry permission requirements.
 4. Game systems that do not include an Item Id reference in their item roll chat messages **cannot** be used with Item Tracks
 ---
+## [2.0.1] - 2026-07-04
+> Documentation and metadata fixes
+
+- Updated README badges, installation instructions, and issue links to point at this repository
+- Updated package.json repository metadata for the fork
+- Excluded local Claude Code settings from git and release archives
+- Removed the legacy patrons list
+
 ## [2.0.0] - 2026-07-03
 > Maestro 2.0 — a maintained fork of Maestro with support for Foundry VTT v13 and v14 (minimum v13)
 
