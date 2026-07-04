@@ -118,5 +118,8 @@ dist
 # Secrets
 patreon_key.txt
 
+# Claude Code local settings
+.claude/
+
 # Foundry
 foundry.js

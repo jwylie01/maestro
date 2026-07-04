@@ -9,3 +9,5 @@ package.json
 package-lock.json
 tsconfig.json
 foundry.js
+./.claude/*
+*.claude*

@@ -1,6 +1,6 @@
 {
-  "name": "maestro",
-  "version": "0.9.0",
+  "name": "maestro2",
+  "version": "2.0.0",
   "description": "Adds new audio features to Foundry VTT",
   "main": "maestro.js",
   "devDependencies": {
@@ -20,12 +20,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/death-save/maestro.git"
+    "url": "git+https://github.com/jwylie01/maestro.git"
   },
-  "author": "Evan Clarke (errational)",
+  "author": "Jennifer Wylie (original by Evan Clarke)",
   "license": "SEE LICENSE IN LICENSE",
   "bugs": {
-    "url": "https://github.com/death-save/maestro/issues"
+    "url": "https://github.com/jwylie01/maestro/issues"
   },
-  "homepage": "https://github.com/death-save/maestro#readme"
+  "homepage": "https://github.com/jwylie01/maestro#readme"
 }

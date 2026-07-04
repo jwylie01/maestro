@@ -1,7 +1,7 @@
-![https://img.shields.io/badge/Foundry%20VTT-9.235=>9.238-green](https://img.shields.io/badge/Foundry%20VTT-9.235=>9.238-green)
+![Foundry VTT v13 - v14](https://img.shields.io/badge/Foundry%20VTT-v13%20--%20v14-green)
 
-![GitHub downloads (latest)](https://img.shields.io/github/downloads-pre/death-save/maestro/latest/module.zip)
-[![Forge Installs](https://img.shields.io/badge/dynamic/json?label=Forge%20Install%20Base&query=package.installs&suffix=%&url=https://forge-vtt.com/api/bazaar/package/maestro&colorB=brightgreen)](https://forge-vtt.com/)
+![GitHub downloads (latest)](https://img.shields.io/github/downloads/jwylie01/maestro/latest/module.zip)
+[![Forge Installs](https://img.shields.io/badge/dynamic/json?label=Forge%20Install%20Base&query=package.installs&suffix=%&url=https://forge-vtt.com/api/bazaar/package/maestro2&colorB=brightgreen)](https://forge-vtt.com/)
 
 # MAESTRO 2.0
 *Updated from the original project made by DEATH SAVE DEVELOPMENT*    
@@ -46,11 +46,11 @@ Set a playlist or track to play when the Combat encounter begins.
 ## Installation
 
 1. Navigate to the Foundry Setup screen and click on the Modules tab
-2. Click Install Module and paste in the following link: [https://github.com/jwylie01/maestro/releases/latest/download/module.json]
-3. Once the **Maestro** is installed, open your desired world and navigate to the `Game Settings` > `Configure Settings` > `Module Settings` and enable the settings you want!
+2. Click Install Module and paste in the following link: `https://github.com/jwylie01/maestro/releases/latest/download/module.json`
+3. Once **Maestro 2.0** is installed, open your desired world and navigate to the `Game Settings` > `Configure Settings` > `Module Settings` and enable the settings you want!
 
 ## Issues/Feedback
-You can create an issue here: [Issue Log](https://github.com/death-save/maestro/issues) or contact me on [Discord](https://discord.gg/pqnn72VTmj)
+You can create an issue here: [Issue Log](https://github.com/jwylie01/maestro/issues)
 
 ## Donations
 Click the Sponsor button at the top of the Github repo!
