@@ -11,13 +11,17 @@
       "reddit": ""
     }
   ],
-  "version": "2.0.1",
+  "version": "2.0.2",
   "compatibility": {
     "minimum": "13",
     "verified": "14"
   },
-  "esmodules": ["maestro.js"],
-  "styles": ["maestro.css"],
+  "esmodules": [
+    "maestro.js"
+  ],
+  "styles": [
+    "maestro.css"
+  ],
   "languages": [
     {
       "lang": "en",
@@ -46,7 +50,7 @@
     }
   ],
   "manifest": "https://github.com/jwylie01/maestro/releases/latest/download/module.json",
-  "download": "https://github.com/jwylie01/maestro/releases/download/v2.0.1/module.zip",
+  "download": "https://github.com/jwylie01/maestro/releases/download/v2.0.2/module.zip",
   "url": "https://github.com/jwylie01/maestro",
   "bugs": "https://github.com/jwylie01/maestro/issues",
   "flags": {

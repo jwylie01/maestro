@@ -6,6 +6,11 @@
 3. A GM must be logged in for many of the Maestro functions to work due to underlying Foundry permission requirements.
 4. Game systems that do not include an Item Id reference in their item roll chat messages **cannot** be used with Item Tracks
 ---
+## [2.0.2] - 2026-07-04
+> Bug fix
+
+- Fixed Hype Track form (and macro warning) labels showing raw localization keys instead of the proper text, caused by a structure conflict in the English language file
+
 ## [2.0.1] - 2026-07-04
 > Documentation and metadata fixes
 

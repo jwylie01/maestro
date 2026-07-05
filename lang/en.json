@@ -124,17 +124,9 @@
         "PLAYLIST-LOOP.ButtonTooltipLoop": "Loop Playlist",
         "PLAYLIST-LOOP.ButtonTooltipNoLoop": "Don't Loop Playlist",
         "PLAYLIST-LOOP.ButtonToolTipDisabled": "Loop Disabled",
-        "HYPE-TRACK": {
-            "PlayHype": {
-                "NoActor": "Maestro | Play Hype Track: No matching Actor found",
-                "NoTrack": "Maestro | Play Hype Track: This Actor has no Hype Track set",
-                "NoPlaylist": "Maestro | Play Hype Track: No matching Playlist found"
-            }
-        },
-        "PLAYBACK": {
-            "PlaySoundByName": {
-                "NoPlaylist": "Maestro | Play Sound By Name: No Playlist containing that sound found"
-            }
-        }
+        "HYPE-TRACK.PlayHype.NoActor": "Maestro | Play Hype Track: No matching Actor found",
+        "HYPE-TRACK.PlayHype.NoTrack": "Maestro | Play Hype Track: This Actor has no Hype Track set",
+        "HYPE-TRACK.PlayHype.NoPlaylist": "Maestro | Play Hype Track: No matching Playlist found",
+        "PLAYBACK.PlaySoundByName.NoPlaylist": "Maestro | Play Sound By Name: No Playlist containing that sound found"
     }
 }
